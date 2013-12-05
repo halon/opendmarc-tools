@@ -1,0 +1,84 @@
+#!/usr/bin/perl
+
+#use warnings;
+use strict;
+
+my $reporter = $0;
+
+while (<STDIN>)
+{
+        chomp;
+	next if $_ !~ m/v=DMARCLOG1; *(.*)$/s;
+	my %result = map { split(/=/, $_, 2) } split(/; */, $1);
+	if ($_ =~ m/ ([^ ]+) mailscand: v=DMARCLOG1;/s) {
+		$reporter = $1;
+	}
+	print "job ", $result{'id'}, "\n";
+	print "reporter ", $reporter, "\n";
+	print "received ", $result{'ts'}, "\n";
+	print "ipaddr ", $result{'ipaddr'}, "\n";
+	print "from ", $result{'from'}, "\n";
+	print "mfrom ", $result{'mfrom'}, "\n";
+	print "pdomain ", $result{'pdomain'}, "\n";
+	map { print "rua ", $_, "\n" } split(',', $result{'rua'}) if defined($result{'rua'});
+	print "aspf ";
+	print ord('s') if $result{'aspf'} eq 'strict';
+	print ord('r') if $result{'aspf'} eq 'relaxed';
+	print "\n";
+	print "adkim ";
+	print ord('s') if $result{'adkim'} eq 'strict';
+	print ord('r') if $result{'adkim'} eq 'relaxed';
+	print "\n";
+	print "pct ", $result{'pct'}, "\n";
+	print "p ";
+	print ord('n') if $result{'p'} eq 'none';
+	print ord('r') if $result{'p'} eq 'reject';
+	print ord('q') if $result{'p'} eq 'quarantine';
+	print '0' if ! defined($result{'p'});
+	print "\n";
+	print "sp ";
+	print ord('n') if $result{'sp'} eq 'none';
+	print ord('r') if $result{'sp'} eq 'reject';
+	print ord('q') if $result{'sp'} eq 'quarantine';
+	print '0' if ! defined($result{'sp'});
+	print "\n";
+	print "spf ";
+	print '0' if $result{'spf'} eq 'pass';
+	print '2' if $result{'spf'} eq 'softfail';
+	print '3' if $result{'spf'} eq 'neutral';
+	print '7' if $result{'spf'} eq 'fail';
+	print '-1' if $result{'spf'} eq 'unknown';
+	print "\n";
+	foreach my $key (keys %result)
+	{
+		next if $key !~ m/^dkim:(.+)$/s;
+		print "dkim ", $1, " ";
+		print '0' if $result{$key} eq 'pass';
+		print '2' if $result{$key} eq 'softfail';
+		print '4' if $result{$key} eq 'tempfail';
+		print '5' if $result{$key} eq 'permfail';
+		print "\n";
+	}
+	print "align_spf ";
+	print '4' if $result{'align_spf'} eq 'pass';
+	print '5' if $result{'align_spf'} eq 'fail';
+	print '5' if $result{'align_spf'} eq 'unaligned';
+	print "\n";
+	print "align_dkim ";
+	print '4' if $result{'align_dkim'} eq 'pass';
+	print '5' if $result{'align_dkim'} eq 'fail';
+	print '5' if $result{'align_dkim'} eq 'unaligned';
+	print "\n";
+	print "policy ";
+	print '15' if $result{'policy'} eq 'pass';
+	print '16' if $result{'policy'} eq 'reject';
+	print '17' if $result{'policy'} eq 'quarantine';
+	print '18' if $result{'policy'} eq 'none';
+	print "\n";
+	print "action ";
+	print '0' if $result{'action'} eq 'reject';
+	print '2' if $result{'action'} eq 'pass';
+	print '2' if $result{'action'} eq 'none';
+	print '4' if $result{'action'} eq 'quarantine';
+	print "\n";
+}
