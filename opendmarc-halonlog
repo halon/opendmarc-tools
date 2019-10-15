@@ -8,9 +8,9 @@ my $reporter = $0;
 while (<STDIN>)
 {
         chomp;
-	next if $_ !~ m/v=DMARCLOG1; *(.*)$/s;
+	next if $_ !~ m/\[DMARC\][^\(]*\((.*)\)$/s;
 	my %result = map { split(/=/, $_, 2) } split(/; */, $1);
-	if ($_ =~ m/ ([^ ]+) smtpd: v=DMARCLOG1;/s) {
+	if ($_ =~ m/ ([^ ]+) smtpd\[[1-9]*\]:.*\[DMARC\]/s) {
 		$reporter = $1;
 	}
 	print "job ", $result{'id'}, "\n";
