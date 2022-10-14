@@ -46,6 +46,7 @@ while (<STDIN>)
 	print '0' if $result{'spf'} eq 'pass';
 	print '2' if $result{'spf'} eq 'softfail';
 	print '3' if $result{'spf'} eq 'neutral';
+	print '6' if $result{'spf'} eq 'none';
 	print '7' if $result{'spf'} eq 'fail';
 	print '-1' if $result{'spf'} eq 'unknown';
 	print "\n";
