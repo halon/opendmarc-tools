@@ -52,8 +52,8 @@ while (<STDIN>)
 	print "\n";
 	foreach my $key (keys %result)
 	{
-		next if $key !~ m/^dkim:(.+)$/s;
-		print "dkim ", $1, " ";
+		next if $key !~ m/^dkim:(.+)\._domainkey\.(.+)$/s;
+		print "dkim ", $2, " ", $1, " ";
 		print '0' if $result{$key} eq 'pass';
 		print '2' if $result{$key} eq 'softfail';
 		print '4' if $result{$key} eq 'tempfail';
